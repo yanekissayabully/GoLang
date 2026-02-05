@@ -10,9 +10,7 @@ func LoggingMiddleware(next http.Handler) http.Handler {
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
         start := time.Now()
         
-        // Создаем кастомный ResponseWriter для перехвата статуса
         rw := &responseWriter{ResponseWriter: w, statusCode: http.StatusOK}
-        
         next.ServeHTTP(rw, r)
         
         log.Printf("[%s] %s %s %d %v", 

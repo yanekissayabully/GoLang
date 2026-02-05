@@ -47,6 +47,19 @@ func (s *TaskStore) GetAll() []models.Task {
     return tasks
 }
 
+func (s *TaskStore) GetAllFiltered(doneFilter *bool) []models.Task {
+    s.mu.RLock()
+    defer s.mu.RUnlock()
+    
+    tasks := make([]models.Task, 0, len(s.tasks))
+    for _, task := range s.tasks {
+        if doneFilter == nil || task.Done == *doneFilter {
+            tasks = append(tasks, task)
+        }
+    }
+    return tasks
+}
+
 func (s *TaskStore) Update(id int, done bool) (models.Task, bool) {
     s.mu.Lock()
     defer s.mu.Unlock()
@@ -59,4 +72,22 @@ func (s *TaskStore) Update(id int, done bool) (models.Task, bool) {
     task.Done = done
     s.tasks[id] = task
     return task, true
+}
+
+func (s *TaskStore) Delete(id int) bool {
+    s.mu.Lock()
+    defer s.mu.Unlock()
+    
+    if _, exists := s.tasks[id]; !exists {
+        return false
+    }
+    
+    delete(s.tasks, id)
+    return true
+}
+
+func (s *TaskStore) Count() int {
+    s.mu.RLock()
+    defer s.mu.RUnlock()
+    return len(s.tasks)
 }
