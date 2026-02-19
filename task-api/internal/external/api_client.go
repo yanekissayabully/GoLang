@@ -22,7 +22,7 @@ func NewAPIClient() *APIClient {
     }
 }
 
-// GetExternalTodos получает задачи с внешнего API
+//получает задачи с внешнего апи
 func (c *APIClient) GetExternalTodos() ([]models.ExternalTodo, error) {
     resp, err := c.client.Get("https://jsonplaceholder.typicode.com/todos")
     if err != nil {
@@ -47,7 +47,7 @@ func (c *APIClient) GetExternalTodos() ([]models.ExternalTodo, error) {
     return todos, nil
 }
 
-// CreateExternalPost создает пост на внешнем API
+// пост на внешнем апи
 func (c *APIClient) CreateExternalPost(post models.CreatePostRequest) (*models.CreatePostResponse, error) {
     jsonData, err := json.Marshal(post)
     if err != nil {
