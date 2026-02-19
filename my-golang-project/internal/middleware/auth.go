@@ -2,9 +2,17 @@ package middleware
 
 import (
     "net/http"
+    "os"
 )
 
-const APIKey = "my-secret-key-123"
+// GetAPIKey возвращает API ключ из переменных окружения
+func GetAPIKey() string {
+    if key := os.Getenv("API_KEY"); key != "" {
+        return key
+    }
+    // Значение по умолчанию, если не задано в .env
+    return "my-secret-key-123"
+}
 
 func AuthMiddleware(next http.Handler) http.Handler {
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -14,8 +22,10 @@ func AuthMiddleware(next http.Handler) http.Handler {
             return
         }
 
+        apiKey := GetAPIKey()
         key := r.Header.Get("X-API-KEY")
-        if key != APIKey {
+        
+        if key != apiKey {
             w.Header().Set("Content-Type", "application/json")
             w.WriteHeader(http.StatusUnauthorized)
             w.Write([]byte(`{"error":"неавторизован"}`))

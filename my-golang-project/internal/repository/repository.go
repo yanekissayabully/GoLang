@@ -1,7 +1,7 @@
 package repository
 
 import (
-    "my-golang-project/internal/repository/_postgres" // Добавляем этот импорт
+    "my-golang-project/internal/repository/_postgres"
     "my-golang-project/internal/repository/_postgres/users"
     "my-golang-project/pkg/modules"
 )
@@ -9,19 +9,21 @@ import (
 type UserRepository interface {
     GetUsers() ([]modules.User, error)
     GetUserByID(id int) (*modules.User, error)
-    CreateUser(name, email string, age *int) (int, error) // Обновляем сигнатуру
-    UpdateUser(id int, name, email string, age *int) error // Обновляем сигнатуру
-    DeleteUser(id int) error
+    GetActiveUserByID(id int) (*modules.User, error) // новый метод
+    CreateUser(name, email string, age *int) (int, error)
+    UpdateUser(id int, name, email string, age *int) error
+    DeleteUser(id int) error                         // мягкое удаление
+    HardDeleteUser(id int) error                      // полное удаление
+    GetDeletedUsers() ([]modules.User, error)         // получить удаленных
+    RestoreUser(id int) error                          // восстановить
 }
 
 type Repositories struct {
     User UserRepository
 }
 
-// NewRepositories теперь принимает *_postgres.Dialect
 func NewRepositories(db *_postgres.Dialect) *Repositories {
     return &Repositories{
-        // Передаем db.DB в конструктор репозитория пользователей
         User: users.NewUserRepository(db.DB),
     }
 }

@@ -7,7 +7,7 @@ import (
 )
 
 type UserUsecase struct {
-    repo repository.UserRepository // Зависимость от интерфейса, а не от конкретной реализации!
+    repo repository.UserRepository
 }
 
 func NewUserUsecase(repo repository.UserRepository) *UserUsecase {
@@ -22,23 +22,38 @@ func (u *UserUsecase) GetUserByID(id int) (*modules.User, error) {
     return u.repo.GetUserByID(id)
 }
 
+// Новый метод: получить только активного пользователя
+func (u *UserUsecase) GetActiveUserByID(id int) (*modules.User, error) {
+    return u.repo.GetActiveUserByID(id)
+}
+
 func (u *UserUsecase) CreateUser(name, email string, age *int) (int, error) {
-    // Здесь можно добавить бизнес-логику, например, валидацию email или возраст>0
     if name == "" {
         return 0, fmt.Errorf("имя не может быть пустым")
     }
     if email == "" {
         return 0, fmt.Errorf("email не может быть пустым")
     }
-    // Валидация формата email - сложнее, пока пропустим
     return u.repo.CreateUser(name, email, age)
 }
 
 func (u *UserUsecase) UpdateUser(id int, name, email string, age *int) error {
-    // Тоже можно добавить проверки
     return u.repo.UpdateUser(id, name, email, age)
 }
 
 func (u *UserUsecase) DeleteUser(id int) error {
     return u.repo.DeleteUser(id)
+}
+
+// Новые методы для работы с удаленными
+func (u *UserUsecase) HardDeleteUser(id int) error {
+    return u.repo.HardDeleteUser(id)
+}
+
+func (u *UserUsecase) GetDeletedUsers() ([]modules.User, error) {
+    return u.repo.GetDeletedUsers()
+}
+
+func (u *UserUsecase) RestoreUser(id int) error {
+    return u.repo.RestoreUser(id)
 }

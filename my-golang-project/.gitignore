@@ -1,0 +1,18 @@
+# Environment variables
+.env
+*.env
+
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
