@@ -9,13 +9,13 @@ import (
 type UserRepository interface {
     GetUsers() ([]modules.User, error)
     GetUserByID(id int) (*modules.User, error)
-    GetActiveUserByID(id int) (*modules.User, error) // новый метод
+    GetActiveUserByID(id int) (*modules.User, error) //новый метод
     CreateUser(name, email string, age *int) (int, error)
     UpdateUser(id int, name, email string, age *int) error
-    DeleteUser(id int) error                         // мягкое удаление
-    HardDeleteUser(id int) error                      // полное удаление
-    GetDeletedUsers() ([]modules.User, error)         // получить удаленных
-    RestoreUser(id int) error                          // восстановить
+    DeleteUser(id int) error                         //мягкое удаление
+    HardDeleteUser(id int) error                      //полное удаление
+    GetDeletedUsers() ([]modules.User, error)         //получить удаленных
+    RestoreUser(id int) error                          //восстановить
 }
 
 type Repositories struct {

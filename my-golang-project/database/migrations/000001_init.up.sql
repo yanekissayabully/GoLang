@@ -4,10 +4,9 @@ create table if not exists users (
     email varchar(255) unique not null,
     age int,
     created_at timestamp default now(),
-    deleted_at timestamp null -- новое поле для мягкого удаления
+    deleted_at timestamp null -- поле для мягкого удаления
 );
 
--- тестовые данные
 insert into users (name, email, age) values
 ('John Doe', 'john.doe@example.com', 30),
 ('Jane Smith', 'jane.smith@example.com', 25),

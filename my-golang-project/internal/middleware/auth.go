@@ -5,18 +5,18 @@ import (
     "os"
 )
 
-// GetAPIKey возвращает API ключ из переменных окружения
+//GetAPIKey возвращает API ключ из переменных окружения
 func GetAPIKey() string {
     if key := os.Getenv("API_KEY"); key != "" {
         return key
     }
-    // Значение по умолчанию, если не задано в .env
+    //Значение по умолчанию, если не задано в .env
     return "my-secret-key-123"
 }
 
 func AuthMiddleware(next http.Handler) http.Handler {
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-        // Пропускаем healthcheck без проверки ключа
+        //скипаем healthcheck без проверки ключа
         if r.URL.Path == "/health" {
             next.ServeHTTP(w, r)
             return

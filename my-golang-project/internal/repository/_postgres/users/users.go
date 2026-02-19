@@ -4,10 +4,7 @@ import (
     "database/sql"
     "errors"
     "fmt"
-
-
     "my-golang-project/pkg/modules"
-
     "github.com/jmoiron/sqlx"
 )
 
@@ -19,7 +16,7 @@ func NewUserRepository(db *sqlx.DB) *UserRepositoryPostgres {
     return &UserRepositoryPostgres{db: db}
 }
 
-// GetUsers возвращает только НЕУДАЛЕННЫХ пользователей (deleted_at IS NULL)
+//GetUsers возвращает только НЕУДАЛЕННЫХ пользователей
 func (r *UserRepositoryPostgres) GetUsers() ([]modules.User, error) {
     var users []modules.User
     query := `
@@ -35,8 +32,8 @@ func (r *UserRepositoryPostgres) GetUsers() ([]modules.User, error) {
     return users, nil
 }
 
-// GetUserByID возвращает пользователя по ID (даже если он удален)
-// Возвращает ошибку, если пользователь не найден
+//GetUserByID возвращает пользователя по ID
+//Возвращает ошибку, если пользователь не найден
 func (r *UserRepositoryPostgres) GetUserByID(id int) (*modules.User, error) {
     var user modules.User
     query := `
@@ -54,7 +51,7 @@ func (r *UserRepositoryPostgres) GetUserByID(id int) (*modules.User, error) {
     return &user, nil
 }
 
-// GetActiveUserByID возвращает только НЕУДАЛЕННОГО пользователя
+//GetActiveUserByID возвращает только НЕУДАЛЕННОГО пользователя
 func (r *UserRepositoryPostgres) GetActiveUserByID(id int) (*modules.User, error) {
     var user modules.User
     query := `
@@ -72,7 +69,7 @@ func (r *UserRepositoryPostgres) GetActiveUserByID(id int) (*modules.User, error
     return &user, nil
 }
 
-// CreateUser создает нового пользователя
+//CreateUser создает нового пользователя
 func (r *UserRepositoryPostgres) CreateUser(name, email string, age *int) (int, error) {
     var id int
     query := `
@@ -87,14 +84,14 @@ func (r *UserRepositoryPostgres) CreateUser(name, email string, age *int) (int, 
     return id, nil
 }
 
-// UpdateUser обновляет данные пользователя (только если он не удален)
+//UpdateUser обновляет данные пользователя !!!!!! только если он не удален
 func (r *UserRepositoryPostgres) UpdateUser(id int, name, email string, age *int) error {
-    // Сначала проверим, существует ли пользователь и не удален ли он
+    //Сначала проверим, существует ли пользователь и не удален ли он
     user, err := r.GetActiveUserByID(id)
     if err != nil {
-        return err // пользователь не найден или удален
+        return err //пользователь не найден или удален
     }
-    _ = user // просто чтобы подавить предупреждение, мы уже проверили существование
+    _ = user //просто чтобы скипнуть предупреждение, мы уже проверили существование
 
     query := `
         UPDATE users 
@@ -118,15 +115,15 @@ func (r *UserRepositoryPostgres) UpdateUser(id int, name, email string, age *int
     return nil
 }
 
-// DeleteUser - МЯГКОЕ удаление (ставим deleted_at)
+//DeleteUser - МЯГКОЕ удаление
 func (r *UserRepositoryPostgres) DeleteUser(id int) error {
-    // Проверяем, существует ли пользователь
+    //Проверяем, существует ли пользователь
     user, err := r.GetUserByID(id)
     if err != nil {
-        return err // пользователь не найден
+        return err //пользователь не найден
     }
 
-    // Если уже удален, возвращаем ошибку
+    //Если уже удален, возвращаем ошибку
     if user.IsDeleted() {
         return fmt.Errorf("пользователь с ID %d уже удален", id)
     }
@@ -153,7 +150,7 @@ func (r *UserRepositoryPostgres) DeleteUser(id int) error {
     return nil
 }
 
-// HardDeleteUser - ПОЛНОЕ удаление из БД (на всякий случай, для админских функций)
+//HardDeleteUser - ПОЛНОЕ удаление из БД на всякий случай, для админских функций
 func (r *UserRepositoryPostgres) HardDeleteUser(id int) error {
     query := "DELETE FROM users WHERE id = $1"
     result, err := r.db.Exec(query, id)
@@ -173,7 +170,7 @@ func (r *UserRepositoryPostgres) HardDeleteUser(id int) error {
     return nil
 }
 
-// GetDeletedUsers - получить всех удаленных пользователей
+//GetDeletedUsers - получить всех удаленных пользователей
 func (r *UserRepositoryPostgres) GetDeletedUsers() ([]modules.User, error) {
     var users []modules.User
     query := `
@@ -189,7 +186,7 @@ func (r *UserRepositoryPostgres) GetDeletedUsers() ([]modules.User, error) {
     return users, nil
 }
 
-// RestoreUser - восстановить удаленного пользователя
+//RestoreUser - восстановить удаленного пользователя
 func (r *UserRepositoryPostgres) RestoreUser(id int) error {
     query := `
         UPDATE users 

@@ -9,8 +9,7 @@ import (
     "strconv"
     "syscall"
     "time"
-
-    "github.com/joho/godotenv" // Добавляем .env
+    "github.com/joho/godotenv"
 
     userHttp "my-golang-project/internal/delivery/http"
     "my-golang-project/internal/middleware"
@@ -21,7 +20,6 @@ import (
 )
 
 func Run() {
-    // Загружаем .env файл
     if err := godotenv.Load(); err != nil {
         log.Println("Файл .env не найден, используем переменные окружения или значения по умолчанию")
     }
@@ -41,42 +39,42 @@ func Run() {
     userUsecase := usecase.NewUserUsecase(repos.User)
     userHandler := userHttp.NewUserHandler(userUsecase)
 
-    // --- Настройка маршрутов ---
+    //Настройка маршрутов
     mux := http.NewServeMux()
 
-    // Публичный healthcheck
+    //Публичный healthcheck
     mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
         w.Header().Set("Content-Type", "application/json")
         w.WriteHeader(http.StatusOK)
         w.Write([]byte(`{"status":"ok"}`))
     })
 
-    // Основные маршруты
+    //Основные маршруты
     mux.HandleFunc("GET /users", userHandler.GetUsers)
     mux.HandleFunc("GET /users/{id}", userHandler.GetUserByID)
     mux.HandleFunc("POST /users", userHandler.CreateUser)
     mux.HandleFunc("PUT /users/{id}", userHandler.UpdateUser)
     mux.HandleFunc("DELETE /users/{id}", userHandler.DeleteUser)
 
-    // Маршруты для soft delete
+    //Маршруты для soft delete
     mux.HandleFunc("GET /users/deleted", userHandler.GetDeletedUsers)
     mux.HandleFunc("POST /users/{id}/restore", userHandler.RestoreUser)
     mux.HandleFunc("DELETE /users/{id}/hard", userHandler.HardDeleteUser)
 
-    // Применяем мидлвари
+    //Применяем мидлвари
     handlerWithMiddleware := middleware.LoggingMiddleware(mux)
     handlerWithMiddleware = middleware.AuthMiddleware(handlerWithMiddleware)
 
-    // Получаем порт из .env или используем 8080 по умолчанию
+    //Получаем порт из .env или используем 8080 по умолчанию
     port := getEnv("SERVER_PORT", "8080")
     serverAddr := ":" + port
 
-    // Таймауты из .env
+    //Таймауты из .env
     readTimeout := getEnvAsInt("SERVER_READ_TIMEOUT", 10)
     writeTimeout := getEnvAsInt("SERVER_WRITE_TIMEOUT", 10)
     idleTimeout := getEnvAsInt("SERVER_IDLE_TIMEOUT", 120)
 
-    // Запуск сервера с graceful shutdown
+    //Запуск сервера с graceful shutdown
     server := &http.Server{
         Addr:         serverAddr,
         Handler:      handlerWithMiddleware,
@@ -126,7 +124,7 @@ func initPostgreSQL() *modules.PostgreSQL {
     }
 }
 
-// Вспомогательные функции для работы с .env
+//Вспомогательные функции для работы с .env
 func getEnv(key, defaultValue string) string {
     if value, exists := os.LookupEnv(key); exists {
         return value

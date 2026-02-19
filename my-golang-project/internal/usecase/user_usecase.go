@@ -22,7 +22,7 @@ func (u *UserUsecase) GetUserByID(id int) (*modules.User, error) {
     return u.repo.GetUserByID(id)
 }
 
-// Новый метод: получить только активного пользователя
+//Новый метод: получить только активного пользователя
 func (u *UserUsecase) GetActiveUserByID(id int) (*modules.User, error) {
     return u.repo.GetActiveUserByID(id)
 }
@@ -45,7 +45,7 @@ func (u *UserUsecase) DeleteUser(id int) error {
     return u.repo.DeleteUser(id)
 }
 
-// Новые методы для работы с удаленными
+//Новые методы для работы с удаленными
 func (u *UserUsecase) HardDeleteUser(id int) error {
     return u.repo.HardDeleteUser(id)
 }

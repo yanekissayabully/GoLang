@@ -17,7 +17,7 @@ func NewUserHandler(uc *usecase.UserUsecase) *UserHandler {
     return &UserHandler{usecase: uc}
 }
 
-// Request/Response структуры
+//Request/Respons структуры
 type createUserRequest struct {
     Name  string `json:"name"`
     Email string `json:"email"`
@@ -34,7 +34,7 @@ type errorResponse struct {
     Error string `json:"error"`
 }
 
-// GetUsers - GET /users (только активные)
+//GetUsers - GET /users !!!!!!!! только активные
 func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
     users, err := h.usecase.GetUsers()
     if err != nil {
@@ -47,7 +47,7 @@ func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
     json.NewEncoder(w).Encode(users)
 }
 
-// GetUserByID - GET /users/{id} (даже удаленных)
+//GetUserByID - GET /users/{id} !!!! даже если удаленые, пофек
 func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
     id, err := extractIDFromPath(r.URL.Path)
     if err != nil {
@@ -71,7 +71,6 @@ func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
     json.NewEncoder(w).Encode(user)
 }
 
-// CreateUser - POST /users
 func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
     var req createUserRequest
     err := json.NewDecoder(r.Body).Decode(&req)
@@ -93,7 +92,6 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
     json.NewEncoder(w).Encode(map[string]int{"id": id})
 }
 
-// UpdateUser - PUT /users/{id}
 func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
     id, err := extractIDFromPath(r.URL.Path)
     if err != nil {
@@ -126,7 +124,7 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
     json.NewEncoder(w).Encode(map[string]string{"status": "updated"})
 }
 
-// DeleteUser - DELETE /users/{id} (мягкое удаление)
+//мягкое удаление
 func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
     id, err := extractIDFromPath(r.URL.Path)
     if err != nil {
@@ -151,9 +149,8 @@ func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
     json.NewEncoder(w).Encode(map[string]string{"status": "soft deleted"})
 }
 
-// ========== НОВЫЕ ЭНДПОИНТЫ ==========
 
-// GetDeletedUsers - GET /users/deleted (получить удаленных)
+//получить удаленных
 func (h *UserHandler) GetDeletedUsers(w http.ResponseWriter, r *http.Request) {
     users, err := h.usecase.GetDeletedUsers()
     if err != nil {
@@ -166,7 +163,7 @@ func (h *UserHandler) GetDeletedUsers(w http.ResponseWriter, r *http.Request) {
     json.NewEncoder(w).Encode(users)
 }
 
-// RestoreUser - POST /users/{id}/restore (восстановить удаленного)
+//восстановить удаленного
 func (h *UserHandler) RestoreUser(w http.ResponseWriter, r *http.Request) {
     id, err := extractIDFromPath(r.URL.Path)
     if err != nil {
@@ -191,7 +188,7 @@ func (h *UserHandler) RestoreUser(w http.ResponseWriter, r *http.Request) {
     json.NewEncoder(w).Encode(map[string]string{"status": "restored"})
 }
 
-// HardDeleteUser - DELETE /users/{id}/hard (ПОЛНОЕ удаление)
+//ПОЛНОЕ удаление
 func (h *UserHandler) HardDeleteUser(w http.ResponseWriter, r *http.Request) {
     id, err := extractIDFromPath(r.URL.Path)
     if err != nil {
@@ -216,22 +213,22 @@ func (h *UserHandler) HardDeleteUser(w http.ResponseWriter, r *http.Request) {
     json.NewEncoder(w).Encode(map[string]string{"status": "permanently deleted"})
 }
 
-// Вспомогательная функция для извлечения ID из пути
+//Вспомогательная функция для извлечения айди из пути
 func extractIDFromPath(path string) (int, error) {
     pathParts := strings.Split(path, "/")
     if len(pathParts) < 3 {
         return 0, fmt.Errorf("неверный путь")
     }
     
-    // Ищем ID (может быть на разных позициях в зависимости от пути)
-    // /users/1 -> id на позиции 2
-    // /users/1/restore -> id на позиции 2
-    // /users/deleted -> тут ID нет, но этот эндпоинт обрабатывается отдельно
+    // Ищем ID , он может быть на разных позициях в зависимости от пути
+    // /users/1 - id на позиции 2
+    // /users/1/restore - id на позиции 2
+    // /users/deleted - тут ID нет, но этот эндпоинт обрабатывается отдельно
     var idStr string
     if strings.Contains(path, "/restore") || strings.Contains(path, "/hard") {
-        idStr = pathParts[2] // /users/1/restore -> 1 на позиции 2
+        idStr = pathParts[2] // /users/1/restore - 1 на позиции 2
     } else {
-        idStr = pathParts[2] // /users/1 -> 1 на позиции 2
+        idStr = pathParts[2] // /users/1 - 1 на позиции 2
     }
     
     id, err := strconv.Atoi(idStr)

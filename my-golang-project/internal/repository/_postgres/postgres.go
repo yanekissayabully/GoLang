@@ -3,34 +3,31 @@ package _postgres
 import (
     "context"
     "fmt"
-    "log" // Используем стандартный лог
-
-    "my-golang-project/pkg/modules" // Подставь СВОЕ название модуля!
-
+    "log" 
+    "my-golang-project/pkg/modules"
     "github.com/golang-migrate/migrate/v4"
-    _ "github.com/golang-migrate/migrate/v4/database/postgres" // Важно для драйвера
-    _ "github.com/golang-migrate/migrate/v4/source/file"       // Важно для чтения файлов
+    _ "github.com/golang-migrate/migrate/v4/database/postgres" 
+    _ "github.com/golang-migrate/migrate/v4/source/file"       
     "github.com/jmoiron/sqlx"
-    _ "github.com/lib/pq" // Важно для драйвера postgres
+    _ "github.com/lib/pq" 
 )
 
-// Dialect - наша "обертка" над подключением к БД
+//Dialect - наша "обертка" над подключением к БД
 type Dialect struct {
     DB *sqlx.DB
 }
 
-// NewPGXDialect создает новое подключение и применяет миграции
+//NewPGXDialect создает новое подключение и применяет миграции
 func NewPGXDialect(ctx context.Context, cfg *modules.PostgreSQL) *Dialect {
-    // Формируем строку подключения для sqlx.Connect
-    // dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
-    //     cfg.Host, cfg.Port, cfg.Username, cfg.Password, cfg.DBName, cfg.SSLMode)
-    // Но sqlx.Connect с драйвером "postgres" сам поймет и такую строку:
+    //Формируем строку подключения для sqlx.Connect
+    //dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+    //cfg.Host, cfg.Port, cfg.Username, cfg.Password, cfg.DBName, cfg.SSLMode)
     dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
         cfg.Username, cfg.Password, cfg.Host, cfg.Port, cfg.DBName, cfg.SSLMode)
 
     db, err := sqlx.Connect("postgres", dsn)
     if err != nil {
-        log.Fatalf("Ошибка подключения к БД: %v", err) // log.Fatal выведет и завершит программу
+        log.Fatalf("Ошибка подключения к БД: %v", err) //log.Fatal выведет и завершит программу
     }
 
     err = db.Ping()
@@ -40,15 +37,15 @@ func NewPGXDialect(ctx context.Context, cfg *modules.PostgreSQL) *Dialect {
 
     log.Println("Успешно подключились к БД!")
 
-    // Запускаем миграции
-    AutoMigrate(cfg) // cfg передаем, т.к. там есть все данные
+    //Запускаем миграции
+    AutoMigrate(cfg) //cfg передаем, т.к. там есть все данные
 
     return &Dialect{DB: db}
 }
 
-// AutoMigrate применяет миграции из папки database/migrations
+//AutoMigrate применяет миграции из папки database/migrations
 func AutoMigrate(cfg *modules.PostgreSQL) {
-    sourceURL := "file://database/migrations" // Путь до папки с миграциями
+    sourceURL := "file://database/migrations" //Путь до папки с миграциями
     databaseURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
         cfg.Username, cfg.Password, cfg.Host, cfg.Port, cfg.DBName, cfg.SSLMode)
 
@@ -57,7 +54,7 @@ func AutoMigrate(cfg *modules.PostgreSQL) {
         log.Fatalf("Ошибка создания объекта миграции: %v", err)
     }
 
-    // Применяем все доступные миграции вверх (up)
+    //Применяем все доступные миграции вверх
     err = m.Up()
     if err != nil && err != migrate.ErrNoChange {
         log.Fatalf("Ошибка применения миграций: %v", err)
