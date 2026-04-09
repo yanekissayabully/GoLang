@@ -6,7 +6,6 @@ import (
 	"practice-7/internal/usecase"
 	"practice-7/internal/usecase/repo"
 	"practice-7/pkg/postgres"
-
 	"github.com/gin-gonic/gin"
 )
 
